@@ -9,17 +9,29 @@ function onSubmitForm(e) {
 
   let delay = Number(formEl.delay.value);
 
-  for (let i = 1; i <= formEl.amount.value; i += 1) {
-    createPromise(i, delay)
-      .then(({ position, delay }) => {
-        Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-      })
-      .catch(({ position, delay }) => {
-        Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
-      });
-    delay += Number(formEl.step.value);
+  if (
+    formEl.step.value < 0 ||
+    formEl.amount.value <= 0 ||
+    formEl.delay.value < 0
+  ) {
+    Notiflix.Notify.failure('❌ Invalid input values');
+  } else {
+    for (let i = 1; i <= formEl.amount.value; i += 1) {
+      createPromise(i, delay)
+        .then(({ position, delay }) => {
+          Notiflix.Notify.success(
+            `✅ Fulfilled promise ${position} in ${delay}ms`
+          );
+        })
+        .catch(({ position, delay }) => {
+          Notiflix.Notify.failure(
+            `❌ Rejected promise ${position} in ${delay}ms`
+          );
+        });
+      delay += Number(formEl.step.value);
+    }
   }
-}
+};
 
 function createPromise(position, delay) {
   const obj = { position, delay };
@@ -34,4 +46,4 @@ function createPromise(position, delay) {
       }
     }, delay);
   });
-}
+};

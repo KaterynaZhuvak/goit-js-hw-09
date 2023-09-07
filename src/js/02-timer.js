@@ -4,6 +4,7 @@ import Notiflix from 'notiflix';
 
 const input = document.getElementById('datetime-picker');
 const startButton = document.querySelector('[data-start]');
+const resetButton = document.querySelector('[data-reset]');
 const days = document.querySelector('[data-days]');
 const hours = document.querySelector('[data-hours]');
 const minutes = document.querySelector('[data-minutes]');
@@ -23,6 +24,13 @@ const options = {
 };
 
 flatpickr(input, options);
+
+function addLeadingZero(val) {
+  days.textContent = val.days.toString().padStart(2, '0');
+  hours.textContent = val.hours.toString().padStart(2, '0');
+  minutes.textContent = val.minutes.toString().padStart(2, '0');
+  seconds.textContent = val.seconds.toString().padStart(2, '0');
+}
 
 function checkInput(selectedDates) {
   if (selectedDates.getTime() > currentDate.getTime()) {
@@ -45,22 +53,39 @@ function convertMs(ms) {
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
+};
+
+function clearTimer(timer) {
+if (
+    days.textContent === '00' &&
+    hours.textContent === '00' &&
+    minutes.textContent === '00' &&
+    seconds.textContent === '00'
+  ) {
+      clearInterval(timer);
+      Notiflix.Report.info('Time is up', 'You can set the timer again!', 'Close');
+      startButton.disabled = false;
+      input.disabled = false;
+  }
 }
 
-function onClick() {
-  setInterval(() => {
+function timerInterval() {
+  const timer = setInterval(() => {
     const pickedTime = new Date(input.value);
     const currentTime = new Date();
     const difference = pickedTime - currentTime;
     const cover = convertMs(difference);
     addLeadingZero(cover);
     startButton.disabled = true;
-  }, 1000);
+    input.disabled = true;
+
+    clearTimer(timer);
+  }, 1000);  
+
+
 }
 
-function addLeadingZero(val) {
-  days.textContent = val.days.toString().padStart(2, '0');
-    hours.textContent = val.hours.toString().padStart(2, '0');
-    minutes.textContent = val.minutes.toString().padStart(2, '0');
-    seconds.textContent = val.seconds.toString().padStart(2, '0');
+function onClick() {
+  timerInterval();
 }
+
